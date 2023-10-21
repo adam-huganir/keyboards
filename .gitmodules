@@ -1,0 +1,3 @@
+[submodule "addy64/miryoku"]
+	path = addy64/miryoku
+	url = https://github.com/manna-harbour/miryoku_zmk.git

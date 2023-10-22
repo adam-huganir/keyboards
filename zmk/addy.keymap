@@ -14,12 +14,12 @@
 #define L_BASE 0
 #define L_NAV 1
 #define L_MOUSE 2
-#define L_BUTT 3
+#define L_QWERTY 3
 #define L_NUM 4
 #define L_SYM 5
 #define L_FUNC 6
-#define L_MEDIA 7
-#define L_EXTRA 8
+#define L_BT 7
+#define L_MEDIA 8
 
 
 &lt {
@@ -46,19 +46,50 @@
             #binding-cells = <0>;
             bindings = <&kp M &kp O &kp U &kp S &kp E>;
         };
+        tln_qwerty: type_qwerty {
+            label = "Type qwerty";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp Q &kp W &kp E &kp R &kp T &kp Y>;
+        };
     };
 };
 
+// colemak macros
 #define A_LMETA &mt LMETA A
 #define R_LALT  &mt LALT R
 #define S_LCTRL &mt LCTRL S
 #define T_LSHFT &mt LSHFT T
-#define N_RMETA &mt RMETA N
-#define E_RALT  &mt RALT E
-#define I_RCTRL &mt RCTRL I
-#define O_RSHFT &mt RSHFT O
+#define N_RSHFT &mt RSHFT N
+#define E_RCTRL &mt RCTRL E
+#define I_RALT  &mt RALT I
+#define O_RMETA &mt RMETA O
+
+// qwerty versions
+// a is the same
+#define S_LALT  &mt LALT S
+#define D_LCTRL &mt LCTRL D
+#define F_LSHFT &mt LSHFT F
+#define J_RSHFT &mt RSHFT J
+#define K_RCTRL &mt RCTRL K
+#define L_RALT  &mt RALT L
+#define SEM_LMETA &mt LMETA SEMI
+
+
+
 
 / {
+    behaviors {
+        // toggle qwerty if the K key is tapped twice
+        tgl_qwerty_bt: toggle_layer {
+            label = "TOG_QWERTY";
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            bindings = < &lt L_BT ESC>, <&tog L_QWERTY >;
+        };
+    };
+
+
 
     keymap {
         compatible = "zmk,keymap";
@@ -68,10 +99,10 @@
 
             bindings = <
              &kp GRAVE    &kp N1       &kp N2       &kp N3           &kp N4          &kp N5                                              &kp N6              &kp N7           &kp N8            &kp N9       &kp N0              &kp AMPERSAND
-             &kp ESC      &kp Q        &kp W        &kp F            &kp P           &kp B               &kp MINUS          &kp COMMA    &kp J               &kp L            &kp U             &kp Y        &kp COLON           &kp EQUAL
-             &kp TAB      A_LMETA      R_LALT       S_LCTRL          T_LSHFT         &kp G               &kp EQUAL          &kp BSLH     &kp M               N_RMETA          E_RALT            I_RCTRL      O_RSHFT             &kp SQT
-             &kp LSHFT    &kp Z        &kp X        &kp C            &kp D           &kp V               &kp LBKT           &kp RBKT     &kp K               &kp H            &kp COMMA         &kp DOT      &lt L_BUTT FSLH     &kp RSHFT
-                                       &tln_base    &lt L_MEDIA ESC  &lt L_NAV SPACE &lt L_MOUSE TAB     &kp ENTER          &kp ENTER    &lt L_SYM ENTER     &lt L_NUM  BSPC  &lt L_FUNC DEL    &kp ESC
+             &kp TAB      &kp Q        &kp W        &kp F            &kp P           &kp B               &kp MINUS          &kp COMMA    &kp J               &kp L            &kp U             &kp Y        &kp COLON           &kp EQUAL
+             &kp LCTRL    A_LMETA      R_LALT       S_LCTRL          T_LSHFT         &kp G               &kp EQUAL          &kp BSLH     &kp M               N_RSHFT          E_RCTRL           I_RALT       O_RMETA             &kp SQT
+             &kp LSHFT    &kp Z        &kp X        &kp C            &kp D           &kp V               &kp LBKT           &kp RBKT     &kp K               &kp H            &kp COMMA         &kp DOT      &kp FSLH            &kp RSHFT
+                                       &tln_base    &lt L_MEDIA ESC  &lt L_NAV SPACE &lt L_MOUSE TAB     &kp ENTER          &kp ENTER    &lt L_SYM ENTER     &lt L_NUM  BSPC  &lt L_FUNC DEL    &tgl_qwerty_bt
             >;
         };
 
@@ -81,7 +112,7 @@
              &trans       &trans       &trans       &trans       &trans       &trans                                        &trans       &trans       &trans       &trans       &trans       &trans
              &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans       &trans       &trans
              &trans       &kp LMETA    &kp LALT     &kp LCTRL    &kp LSHFT    &trans       &trans              &trans       &kp CAPS     &kp LEFT     &kp UP       &kp DOWN     &kp RIGHT    &trans
-             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &kp INS      &kp HOME     &kp PG_DN    &kp PG_UP    &kp END       &trans
+             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &kp INS      &kp HOME     &kp PG_DN    &kp PG_UP    &kp END      &trans
                                        &tln_nav     &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans
             >;
         };
@@ -92,19 +123,19 @@
              &trans       &trans       &trans       &trans       &trans       &trans                                        &trans       &trans       &trans       &trans       &trans       &trans
              &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans       &trans       &trans
              &trans       &kp LMETA    &kp LALT     &kp LCTRL    &kp LSHFT    &trans       &trans              &trans       &kp CAPS     &kp LEFT     &kp UP       &kp DOWN     &kp RIGHT    &trans
-             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &kp INS      &kp HOME     &kp PG_DN    &kp PG_UP    &kp END       &trans
+             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &kp INS      &kp HOME     &kp PG_DN    &kp PG_UP    &kp END      &trans
                                        &tln_mouse   &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans
             >;
         };
 
-        button_layer {
-            label = "button";
+        qwerty {
+            label = "qwerty";
             bindings = <
-             &trans       &trans       &trans       &trans       &trans       &trans                                        &trans       &trans       &trans       &trans       &trans       &trans
-             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans       &trans       &trans
-             &trans       &kp LMETA    &kp LALT     &kp LCTRL    &kp LSHFT    &trans       &trans              &trans       &trans       &kp LSHFT    &kp LCTRL    &kp LALT     &kp LMETA    &trans
-             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans       &trans       &trans
-                                       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans
+             &kp GRAVE    &kp N1       &kp N2       &kp N3           &kp N4          &kp N5                                             &kp N6              &kp N7           &kp N8           &kp N9         &kp N0        &kp AMPERSAND
+             &kp TAB      &kp Q        &kp W        &kp E            &kp R           &kp T              &kp MINUS          &kp SQT      &kp Y               &kp U            &kp I            &kp O          &kp P         &kp EQUAL
+             &kp LCTRL    A_LMETA      S_LALT       D_LCTRL          F_LSHFT         &kp G              &kp EQUAL          &kp BSLH     &kp H               J_RSHFT          K_RCTRL          L_RALT         SEM_LMETA     &kp SQT
+             &kp LSHFT    &kp Z        &kp X        &kp C            &kp V           &kp B              &kp LBKT           &kp RBKT     &kp N               &kp M            &kp COMMA        &kp DOT        &kp SLASH     &kp RSHFT
+                                       &tln_qwerty  &lt L_MEDIA ESC  &lt L_NAV SPACE &lt L_MOUSE TAB    &kp ENTER          &kp ENTER    &lt L_SYM ENTER     &lt L_NUM BSPC   &lt L_FUNC DEL   &tgl_qwerty_bt
             >;
         };
 
@@ -137,7 +168,18 @@
              &trans       &kp F12    &kp F7       &kp F8       &kp F9       &trans       &trans                &trans       &trans       &trans       &trans       &trans       &trans       &trans
              &trans       &kp F11    &kp F4       &kp F5       &kp F6       &trans       &trans                &trans       &trans       &kp LSHFT    &kp LCTRL    &kp LALT     &kp LMETA    &trans
              &trans       &kp F10    &kp F1       &kp F2       &kp F3       &trans       &trans                &trans       &trans       &trans       &trans       &trans       &trans       &trans
-                                       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans
+                                     &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans
+            >;
+        };
+
+        bt_layer {
+            label = "bt";
+            bindings = <
+             &trans       &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &trans                                        &trans       &trans       &trans       &trans       &trans       &trans
+             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans       &trans       &trans
+             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans       &trans       &trans
+             &trans       &trans       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &trans       &trans       &trans       &trans       &trans
+                                       &trans       &trans       &trans       &trans       &trans              &trans       &trans       &bt BT_CLR   &trans       &trans
             >;
         };
     };

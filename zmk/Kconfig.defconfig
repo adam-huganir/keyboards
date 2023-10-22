@@ -1,6 +1,7 @@
 # Copyright (c) 2020 Ryan Cross
 # SPDX-License-Identifier: MIT
 
+
 if SHIELD_ADDY_LEFT
 
 config ZMK_KEYBOARD_NAME
@@ -8,6 +9,16 @@ config ZMK_KEYBOARD_NAME
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
+
+if ZMK_DISPLAY
+
+config I2C
+    default y
+
+config SSD1306
+    default y
+
+endif
 
 endif
 

@@ -1,0 +1,80 @@
+
+units:
+  # Constants
+  choc_cap_x: 17.5
+  choc_cap_y: 16.5
+
+  choc_plate_thickness: 1.2
+  mx_plate_thickness: 1.5
+  x_spacing: 0.5
+  y_spacing: 0.5
+
+  total_x: choc_cap_x + x_spacing
+  total_y: choc_cap_y + y_spacing
+
+
+points:
+  rotate: 0
+  key:
+    width: choc_cap_x
+    height: choc_cap_y
+    spread: total_x
+    padding: total_y
+
+  zones:
+    main:
+      rows:
+        bottom:
+        middle:
+        top:
+        num:
+      columns:
+        outer:
+        pinky:
+          key:
+            stagger: 8
+            splay: -3
+            spread: total_x + 0.6
+        ring.key:
+          stagger: 1
+          splay: -2
+          spread: total_x + 0.3
+        middle.key:
+          stagger: 4.5
+          splay: -1
+          spread: total_x + 0.2
+        index.key:
+          splay: -1
+        inner:
+          key:
+            splay: 1
+            spread: total_x + 1
+
+    lower_cluster:
+      anchor: main_index_bottom
+      rotate: 7
+      key:
+        shift: [-1.8cx,-1.8cy]
+        splay: 0
+      rows:
+        main:
+      columns:
+        a.key:
+        b.key:
+          splay: -1
+          stagger: -0.5
+          spread: total_x + 1
+        c.key:
+          splay: -6
+          spread: total_x + 4
+          stagger: -4.5
+        d.key:
+          splay: -20
+          spread: total_x + 11
+          stagger: -16
+        e.key:
+          splay: -40
+          spread: total_x + 16
+          stagger: -36
+
+    inner_cluster:

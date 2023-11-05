@@ -1,0 +1,8 @@
+keyboard = """
+KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.Q, KC.W, KC.E, KC.R, KC.T, KC.Y, KC.U, KC.I, KC.O, KC.P, KC.NO, KC.NO, KC.MT, KC.MT, KC.MT, KC.MT, KC.G, KC.H, KC.MT, KC.MT, KC.MT, KC.MT, KC.NO, KC.NO, KC.LT, KC.MT, KC.C, KC.V, KC.B, KC.NO, KC.NO, KC.N, KC.M, KC.COMM, KC.MT, KC.LT, KC.NO, KC.NO, KC.NO, KC.NO, KC.NO, KC.LT, KC.LT, KC.LT, KC.LT, KC.LT, KC.LT, KC.NO, KC.NO, KC.NO, KC.NO
+"""
+keys = keyboard.split(",")
+for x in range(0, len(keys), 14):
+    rowkeys = keys[x:x+14]
+    print(("{:<15} "*len(rowkeys)).format(*rowkeys))
+

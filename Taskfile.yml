@@ -1,0 +1,15 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  CONTROLLER_MOUNT: "I:/"
+  KMK_REPO: "C:/Users/adam/code/kmk_firmware"
+
+
+tasks:
+  sync-kmk:
+    cmds:
+      - |-
+        cd kmk
+        python ./sync.py

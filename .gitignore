@@ -2,3 +2,11 @@ secrets/
 tmp/
 .idea/
 .vscode/
+__pycache__/
+addy64/kmk/firmware/
+addy64/kmk/fonts/
+
+*/kmk/lib/
+*/kmk/kmk/
+
+*.pyc

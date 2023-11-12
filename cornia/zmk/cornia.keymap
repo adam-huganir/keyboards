@@ -105,12 +105,21 @@
                 compatible = "zmk,keymap";
 
                 default_layer {
-                        bindings = <
-&kp Q        &kp W      &kp F            &kp P            &kp B                                             &kp J               &kp L            &kp U             &kp Y        &kp COLON
-A_LMETA      R_LALT     S_LCTRL          T_LSHFT          &kp G                                             &kp M               N_RSHFT          E_RCTRL           I_RALT       O_RMETA
-&kp Z        &kp X      &kp C            &kp D            &kp V           &kp 1                &kp 2        &kp K               &kp H            &kp COMMA         &kp DOT      &kp FSLH
-                        &tln_base        &lt L_MEDIA ESC  &lt L_NAV SPACE &lt L_MOUSE TAB      &kp ENTER    &lt L_SYM ENTER     &lt L_NUM  BSPC  &lt L_FUNC DEL    &tgl_qwerty_bt
-                        >;
+
+                            bindings = <
+    &kp Q &kp W &kp E &kp R &kp T                                                &kp Y &kp U  &kp I     &kp O   &kp P
+    &kp A &kp S &kp D &kp F &kp G                                                &kp H &kp J  &kp K     &kp L   &kp SEMI
+    &kp Z &kp X &kp C &kp V &kp B &kp LSHFT &kp LSHFT        &mo 1    &kp LSHFT  &kp N &kp M  &kp COMMA &kp DOT &kp FSLH
+           &kp LGUI &kp DEL &kp RET &kp SPACE            &kp SPACE  &kp TAB &kp BSPC &kp RALT
+            >;
+
+//                         bindings = <
+// &kp Q        &kp W      &kp F            &kp P            &kp B                                                                      &kp J               &kp L            &kp U             &kp Y        &kp COLON
+// A_LMETA      R_LALT     S_LCTRL          T_LSHFT          &kp G                                                                      &kp M               N_RSHFT          E_RCTRL           I_RALT       O_RMETA
+// &kp Z        &kp X      &kp C            &kp D            &kp V           &kp 1             &kp 2          &kp 3        &kp 4        &kp K               &kp H            &kp COMMA         &kp DOT      &kp FSLH
+//                         &tln_base        &lt L_MEDIA ESC  &lt L_NAV SPACE &lt L_MOUSE TAB                               &lt L_SYM ENTER     &lt L_NUM  BSPC  &lt L_FUNC DEL    &tgl_qwerty_bt
+//                         >;
                 };
         };
 };
+

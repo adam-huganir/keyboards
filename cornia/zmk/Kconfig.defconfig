@@ -1,4 +1,4 @@
-if SHIELD_CORNIA_LEFT
+if SHIELD_CORNIA_RIGHT
 
 config ZMK_KEYBOARD_NAME
     default "Cornia"
@@ -22,7 +22,7 @@ config SSD1306
     default y
 
 config SSD1306_REVERSE_MODE
-    default y
+    default n
 
 endif # ZMK_DISPLAY
 

@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 
-if SHIELD_ADDY_LEFT
+if SHIELD_MYKLOR_LEFT
 
 config ZMK_KEYBOARD_NAME
-    default "addy"
+    default "mukyria"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
@@ -22,7 +22,7 @@ endif
 
 endif
 
-if SHIELD_ADDY_LEFT || SHIELD_ADDY_RIGHT
+if SHIELD_MYKLOR_LEFT || SHIELD_MYKLOR_RIGHT
 
 config ZMK_SPLIT
     default y

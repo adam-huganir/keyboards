@@ -4,3 +4,9 @@
 [submodule "miryoku_babel"]
 	path = miryoku_babel
 	url = https://github.com/manna-harbour/miryoku_babel
+[submodule "miryoku_zmk"]
+	path = miryoku_zmk
+	url = https://github.com/manna-harbour/miryoku_zmk.git
+[submodule "miryoku_kmk"]
+	path = miryoku_kmk
+	url = https://github.com/manna-harbour/miryoku_kmk.git

@@ -10,3 +10,9 @@ addy64/kmk/fonts/
 */kmk/kmk/
 
 *.pyc
+*.mpy
+*.uf2
+*.otf
+*.ttf
+*.pcf
+*.bdf

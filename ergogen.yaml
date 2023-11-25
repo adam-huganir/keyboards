@@ -1,80 +1,192 @@
-
 units:
-  # Constants
-  choc_cap_x: 17.5
-  choc_cap_y: 16.5
+  U: 19.05
+  u: 19
+  cx: 18
+  cy: 17
+  kx: cx
+  ky: cy
+  px: cx + 5
+  py: cy + 5
 
-  choc_plate_thickness: 1.2
-  mx_plate_thickness: 1.5
-  x_spacing: 0.5
-  y_spacing: 0.5
+  $default_stagger: 0
+  $default_spread: cx + 0.5
+  $default_splay: 0
+  $default_height: cy
+  $default_width: cx
+  $default_padding: cy + 0.5
 
-  total_x: choc_cap_x + x_spacing
-  total_y: choc_cap_y + y_spacing
+
 
 
 points:
-  rotate: 0
-  key:
-    width: choc_cap_x
-    height: choc_cap_y
-    spread: total_x
-    padding: total_y
-
   zones:
-    main:
+    matrix:
+      anchor:
+        shift: [-50, 0]
+        rotate: 5
+      columns:
+        pinky:
+          key.column_net: P2
+        ring:
+          key.splay: -2
+          key.origin: [-12, -19]
+          key.stagger: 8
+          key.column_net: P3
+        middle:
+          key.splay: -1
+          key.stagger: 6
+          key.column_net: P4
+        index:
+          key.stagger: -5
+          key.column_net: P5
+        inner:
+          key.stagger: -2
+          key.column_net: P6
       rows:
         bottom:
-        middle:
+          key.row_net: P16
+        home:
+          key.row_net: P14
         top:
-        num:
+          key.row_net: P15
+    thumbfan:
+      anchor:
+        ref: matrix_index_bottom
+        shift: [-7, -1u - 4]
       columns:
+        outer_outer:
+          key:
+            rotate: 2
+            column_net: P3
         outer:
-        pinky:
           key:
-            stagger: 8
-            splay: -3
-            spread: total_x + 0.6
-        ring.key:
-          stagger: 1
-          splay: -2
-          spread: total_x + 0.3
-        middle.key:
-          stagger: 4.5
-          splay: -1
-          spread: total_x + 0.2
-        index.key:
-          splay: -1
+            splay: -2
+            column_net: P4
+        home:
+          key.spread: 21.25
+          key.splay: -28
+          key.origin: [-11.75, -9]
+          key.column_net: P5
         inner:
-          key:
-            splay: 1
-            spread: total_x + 1
+          key.spread: 21.25
+          key.splay: -28
+          key.origin: [-9.5, -9]
+          key.column_net: P6
 
-    lower_cluster:
-      anchor: main_index_bottom
-      rotate: 7
-      key:
-        shift: [-1.8cx,-1.8cy]
-        splay: 0
       rows:
-        main:
-      columns:
-        a.key:
-        b.key:
-          splay: -1
-          stagger: -0.5
-          spread: total_x + 1
-        c.key:
-          splay: -6
-          spread: total_x + 4
-          stagger: -4.5
-        d.key:
-          splay: -20
-          spread: total_x + 11
-          stagger: -16
-        e.key:
-          splay: -40
-          spread: total_x + 16
-          stagger: -36
+        thumb:
+          key.row_net: P10
+  rotate: &rotation -10
+  #mirror:
+  #  ref: matrix_pinky_home
+  #  distance: 250
 
-    inner_cluster:
+
+outlines:  
+  raw:
+    - what: rectangle
+      where: true
+      size: [px,py]
+  keys:
+    - what: rectangle
+      where: true
+      size: [kx-0.5,ky-0.5]
+  sockets:
+    - what: rectangle
+      where: true
+      size: [14, 14]
+  board:
+    - what: polygon
+      operation: stack
+      fillet: 3
+      points: 
+        - ref: matrix_pinky_top 
+          shift: [-px/2,py/2]
+        - ref: matrix_ring_top
+          shift: [-px/2,py/2]
+        - ref: matrix_middle_top
+          shift: [-px/2,py/2]
+        - ref: matrix_middle_top
+          shift: [px/2,py/2]
+        # - ref: matrix_index_top
+        #  shift: [px/2,py/2]
+        - ref: matrix_inner_top
+          shift: [px/2,py/2]
+        - ref: matrix_inner_top
+          shift: [1.6px,py/2]
+        - ref: thumbfan_inner_thumb
+          shift: [px/2,py/2]
+        - ref: thumbfan_inner_thumb
+          shift: [px/2, -py/2]
+        - ref: thumbfan_home_thumb
+          shift: [0, -py/2]
+        - ref: thumbfan_outer_thumb
+          shift: [0, -py/2]
+        - ref: thumbfan_outer_outer_thumb
+          shift: [0, -py/2]
+        - ref: thumbfan_outer_outer_thumb
+          shift: [-px/2, -py/2]
+        - ref: matrix_pinky_bottom
+          shift: [-px/2, -py/2]
+  plate_preview: 
+    - name: board
+    - name: sockets
+      operation: subtract
+    - name: keys
+      operation: stack  
+  plate: 
+    - name: board
+     # operation: add
+    - name: sockets
+      operation: subtract
+  pm:
+    #- name: board
+    # operation: add
+    #- name: sockets
+    #  operation: subtract
+    - what: rectangle
+      operation: stack
+      adjust:
+        shift: &pmshift [2.7*u, 1u]
+        rotate: &pmrotate -8
+      size: [18, 33]
+          
+cases:
+  base:
+    - what: outline
+      name: board
+      extrude: 3
+  plate:
+    - what: outline
+      name: plate
+      extrude: 0.6
+
+pcbs:
+  main:
+    outlines:
+      main:
+        outline: board
+    footprints:
+      pm:
+        what: promicro
+        where: matrix_inner_top
+        adjust:
+          orient: 270
+          shift: [1*kx, 1.5*kx]
+      choc_hotswap:
+        what: choc
+        where: true
+        params:
+          keycaps: true
+          reverse: false
+          hotswap: true
+          from: "{{column_net}}"
+          to: "{{colrow}}"
+      diode:
+        what: diode
+        where: true
+        params:
+          from: "{{colrow}}"
+          to: "{{row_net}}"
+        adjust:
+          shift: [0, -5]

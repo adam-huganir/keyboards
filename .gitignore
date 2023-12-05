@@ -10,3 +10,5 @@ addy64/kmk/fonts/
 */kmk/kmk/
 
 *.pyc
+
+.ruff_cache/

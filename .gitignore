@@ -12,3 +12,9 @@ addy64/kmk/fonts/
 *.pyc
 
 .ruff_cache/
+*.mpy
+*.uf2
+*.otf
+*.ttf
+*.pcf
+*.bdf

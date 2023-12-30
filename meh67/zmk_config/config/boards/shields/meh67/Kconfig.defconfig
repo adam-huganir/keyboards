@@ -1,0 +1,6 @@
+if SHIELD_MEH67
+
+config ZMK_KEYBOARD_NAME
+    default "Meh 67"
+
+endif

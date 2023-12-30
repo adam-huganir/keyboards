@@ -1,0 +1,10 @@
+file_format: "1"
+id: meh67
+name: meh67
+type: shield
+url: https://github.com/adam-huganir/keyboards
+requires: [pro_micro]
+exposes: [i2c_oled]
+features:
+  - keys
+  - display

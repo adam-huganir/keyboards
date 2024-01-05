@@ -10,3 +10,6 @@
 [submodule "miryoku_kmk"]
 	path = miryoku_kmk
 	url = https://github.com/manna-harbour/miryoku_kmk.git
+[submodule "miryoku_kmonad"]
+	path = miryoku_kmonad
+	url = https://github.com/manna-harbour/miryoku_kmonad.git

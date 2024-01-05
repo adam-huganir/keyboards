@@ -1,0 +1,87 @@
+(defcfg
+  ;; For Windows
+  input  (low-level-hook)
+  output (send-event-sink)
+;;   fallthrough true
+  allow-cmd true
+)
+
+;;                                                                   _ _
+;;   _      _   _   _   _   _   _   _   _   _   _  _   _   _
+;;   _     _    _    _    _    _    _    _    _    _    _    _     _   _
+;;   _    _    _    _    _    _    _    _    _    _    _    _     _    _
+;;   _   _    _    _    _    _    _    _    _    _    _    _           _
+;;   _     _    _    _    _    _    _    _    _    _    _              _
+;;   _    _   _           _                _  _                   _
+;;                                                              _ _ _
+
+(defsrc
+           vold volu       prev pp  next                          prnt ins
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11   f12   del
+  grv   1    2    3    4    5    6    7    8    9    0    -     =      bspc
+  tab    q    w    e    r    t    y    u    i    o    p    [     ]     \
+  caps    a    s    d    f    g    h    j    k    l    ;    '          ret
+  lsft     z    x    c    v    b    n    m    ,    .    /              rsft
+  lctl    lmet   lalt           spc                ralt  rctl      up
+                                                             left down rght
+                                                                  pgup
+                                                             home pgdn end
+)
+
+
+(defalias
+  colemak  (layer-switch colemak)
+  qwerty  (layer-switch qwerty)
+
+)
+
+(deflayer qwerty
+           vold volu       prev pp  next                    @colemak  ins
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11   f12   del
+  grv   1    2    3    4    5    6    7    8    9    0    -     =      bspc
+  tab    q    w    e    r    t    y    u    i    o    p    [     ]     \
+  caps    a    s    d    f    g    h    j    k    l    ;    '          ret
+  lsft     z    x    c    v    b    n    m    ,    .    /              rsft
+  lctl    lmet   lalt           spc                ralt  rctl      up
+                                                             left down rght
+                                                                  pgup
+                                                             home pgdn end
+)
+
+
+(deflayer colemak
+           vold volu       prev pp  next                    @qwerty   ins
+  esc    f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11   f12   del
+  grv   1    2    3    4    5    6    7    8    9    0    -     =      bspc
+   _    q     w     f     p     b     j     l     u     y     '     [     ]  \
+   _     a     r     s     t     g     m     n     e     i     o     ;    ret
+   _      z     x     c     d     v     k     h     ,     .     /         rsft
+  lctl    lmet   lalt           spc                ralt  rctl      up
+                                                             left down rght
+                                                                  pgup
+                                                             home pgdn end
+)
+
+(deflayer test
+         -   -       -   -   -                                          _     _
+ q    _     _     _     _     _     _     _     _     _     _     _     _    _
+ _   _     _     _     _     _     _     _     _     _     _     _     _     _
+ _    _     _     _     _     _     _     _     _     _     _     _     _    _
+ _     _     _     _     _     _     _     _     _     _     _     _         _
+ _      _     _     _     _     _     _     _     _     _     _              _
+ _       _      _                   _                 _      _           _
+                                                                       _ _ _
+                                                                         _
+                                                                       _ _ _
+
+)
+;;           -   -       -   -   -                                          _     _
+;;   _    _     _     _     _     _     _     _     _     _     _     _     _    _
+;;   _   _     _     _     _     _     _     _     _     _     _     _     _     _
+;;   _    _     _     _     _     _     _     _     _     _     _     _     _    _
+;;   _     _     _     _     _     _     _     _     _     _     _     _         _
+;;   _      _     _     _     _     _     _     _     _     _     _              _
+;;   _       _      _                   _                 _      _           _
+;;                                                                         _ _ _
+;;                                                                           _
+;;                                                                         _ _ _

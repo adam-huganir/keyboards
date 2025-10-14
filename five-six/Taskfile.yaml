@@ -1,0 +1,25 @@
+version: "3"
+
+tasks:
+  setup-docker:
+    cmd: |-
+      echo "set up the commands below if you haven't, i'll finish the logic later here"
+      exit 1
+      docker volume create --driver local -o o=bind -o type=none \
+        -o device="$PWD" zmk-config
+      devcontainer up --workspace-folder "$(pwd)"  \
+        --mount type=volume,source=zmk-config,target=/workspaces/zmk_config
+  build:
+    env:
+      CONTAINER_NAME: focused_hopper
+    cmd: |-
+      set -x
+      for side in left right; do
+        docker exec -it $CONTAINER_NAME bash -xec "
+          cd /workspaces/zmk/app
+          west build -b nice_nano -p -- -DSHIELD=five_six_${side} -DZMK_CONFIG=/workspaces/zmk-config
+          cp ./build/zephyr/zmk.uf2 /workspaces/zmk-config/five_six_${side}.uf2
+          chown $UID:$UID /workspaces/zmk-config/five_six_${side}.uf2
+        "
+      done
+      

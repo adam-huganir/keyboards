@@ -1,0 +1,17 @@
+if SHIELD_FIVE_SIX_LEFT
+
+# Name must be less than 16 characters long!
+config ZMK_KEYBOARD_NAME
+    default "Five Six"
+
+config ZMK_SPLIT_ROLE_CENTRAL
+    default y
+
+endif
+
+if SHIELD_FIVE_SIX_LEFT || SHIELD_FIVE_SIX_RIGHT
+
+config ZMK_SPLIT
+    default y
+
+endif

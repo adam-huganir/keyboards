@@ -1,0 +1,199 @@
+/*
+ * Copyright (c) 2020 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+
+#define L_BASE 0
+#define L_NAV 1
+#define L_MOUSE 2
+#define L_QWERTY 3
+#define L_NUM 4
+#define L_SYM 5
+#define L_FUNC 6
+#define L_BT 7
+#define L_MEDIA 8
+
+
+// colemak macros
+#define A_LMETA &mt LMETA A
+#define R_LALT  &mt LALT R
+#define S_LCTRL &mt LCTRL S
+#define T_LSHFT &mt LSHFT T
+#define N_RSHFT &mt RSHFT N
+#define E_RCTRL &mt RCTRL E
+#define I_RALT  &mt RALT I
+#define O_RMETA &mt RMETA O
+
+// qwerty versions
+// a is the same
+#define S_LALT  &mt LALT S
+#define D_LCTRL &mt LCTRL D
+#define F_LSHFT &mt LSHFT F
+#define J_RSHFT &mt RSHFT J
+#define K_RCTRL &mt RCTRL K
+#define L_RALT  &mt RALT L
+#define SEM_LMETA &mt LMETA SEMI
+
+#define ______ &trans
+
+&caps_word {
+    continue-list = <UNDERSCORE MINUS>;
+};
+&lt {
+    tapping-term-ms = <200>;
+    quick-tap-ms = <200>;
+};
+
+&mt {
+    tapping-term-ms = <300>;
+    quick-tap-ms = <200>;
+};
+
+// ┌───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┬───────────────┐
+// ├───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
+// ├───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
+// ├───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┼───────────────┤
+// ├───────────────┴──────────┬────┴───────────────┴┬──────────────┴───┬───────────┴────────┬──────┴───────┬───────┴────┬──────────┴──────┬────────┴────────┬──────┴───────────────┴─────┬─────────┴───────────────┼───────────────┤
+// └──────────────────────────┴─────────────────────┴──────────────────┴────────────────────┴──────────────┴────────────┴─────────────────┴─────────────────┴────────────────────────────┴─────────────────────────┴───────────────┘
+ 
+
+
+/ {
+    macros {
+        tln_base: type_base {
+            label = "Type Base";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp B &kp A &kp S &kp E>;
+        };
+        tln_nav: type_nav {
+            label = "Type nav";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp N &kp A &kp V>;
+        };
+        tln_mouse: type_mouse {
+            label = "Type mouse";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp M &kp O &kp U &kp S &kp E>;
+        };
+        tln_qwerty: type_qwerty {
+            label = "Type qwerty";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp Q &kp W &kp E &kp R &kp T &kp Y>;
+        };
+    };
+};
+
+/ {
+    behaviors {
+        // toggle qwerty if the K key is tapped twice
+        rctl_toggle_qwerty: rctl_toggle_qwerty {
+            label = "TOG_QWERTY";
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            bindings =  < &kp RCTRL >, < &tog L_QWERTY >, < &tog L_BASE >;
+        };
+
+        rctl_toggle_base: rctl_toggle_base {
+            label = "UNTOG_QWERTY";
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            bindings =  < &kp RCTRL >, < &tog L_QWERTY >, < &tog L_BASE >;
+        };
+
+        bt_tapdance: bt_tapdance {
+            label = "Switch bluetooth and clear profiles";
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            bindings = < &bt BT_NXT >, < &bt BT_SEL 0 >, <&bt BT_CLR>;
+        };
+
+        double_shift: double_shift_capsword {
+            label = "Double Shift Capsword";
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            bindings = < &kp LSHFT >, < &caps_word >;
+        };
+    };
+};
+
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            display-name = "Default Layer";
+// ------------------------------------------------------------------------------------------------------------
+// |  ESC  |  1  |  2  |  3   |  4   |  5   |                       |  6   |  7    |  8    |  9   |   0   |   `   |
+// |  TAB  |  Q  |  W  |  E   |  R   |  T   |                       |  Y   |  U    |  I    |  O   |   P   |   -   |
+// |  CTRL |  A  |  S  |  D   |  F   |  G   |                       |  H   |  J    |  K    |  L   |   ;   |   '   |
+// | SHIFT |  Z  |  X  |  C   |  V   |  B   |                       |  N   |  M    |  ,    |  .   |   /   | SHIFT |
+//                        | GUI  | LOWER|  SPACE |  "["  |  "]"  | ENTER | RAISE|  ALT  |
+            bindings = <
+&kp ESC   &kp N1 &kp N2 &kp N3 &kp N4   &kp N5                          &kp N6 &kp N7 &kp N8    &kp N9  &kp N0   &kp GRAVE
+&kp TAB   &kp Q  &kp W  &kp E  &kp R    &kp T                           &kp Y  &kp U  &kp I     &kp O   &kp P    &kp MINUS
+&kp LSHFT &kp A  &kp S  &kp D  &kp F    &kp G                           &kp H  &kp J  &kp K     &kp L   &kp SEMI &kp SQT
+&kp LCTRL &kp Z  &kp X  &kp C  &kp V    &kp B                           &kp N  &kp M  &kp COMMA &kp DOT &kp FSLH &kp RSHFT
+                      &kp LGUI &mo 1   &kp SPACE &kp LBKT  &kp RBKT  &kp RET   &mo 2  &kp RALT
+            >;
+        };
+        bt_layer {
+            display-name = "BT Layer";
+// ------------------------------------------------------------------------------------------------------------
+// |  ESC  |  1  |  2  |  3   |  4   |  5   |                       |  6   |  7    |  8    |  9   |   0   |   `   |
+// |  TAB  |  Q  |  W  |  E   |  R   |  T   |                       |  Y   |  U    |  I    |  O   |   P   |   -   |
+// |  CTRL |  A  |  S  |  D   |  F   |  G   |                       |  H   |  J    |  K    |  L   |   ;   |   '   |
+// | SHIFT |  Z  |  X  |  C   |  V   |  B   |                       |  N   |  M    |  ,    |  .   |   /   | SHIFT |
+//                        | GUI  | LOWER|  SPACE |  "["  |  "]"  | ENTER | RAISE|  ALT  |
+            bindings = <
+&bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4                      &trans    &trans    &trans    &trans    &trans    &trans
+&trans     &trans       &trans       &trans       &trans       &trans                            &trans    &trans    &trans    &trans    &trans    &trans
+&trans     &trans       &trans       &trans       &trans       &trans                            &trans    &trans    &trans    &trans    &trans    &trans
+&trans     &trans       &trans       &trans       &trans       &trans                            &trans    &trans    &trans    &trans    &trans    &trans
+                                &trans     &trans       &trans       &trans        &trans    &trans    &trans    &trans    &trans
+            >;
+        };
+
+//         lower_layer {
+//             display-name = "Lower Layer";
+// // ------------------------------------------------------------------------------------------------------------
+// // | BTCLR | BT1 | BT2 |  BT3 |  BT4 |  BT5 |                   |      |       |       |      |       |       |
+// // |  F1   |  F2 |  F3 |  F4  |  F5  |  F6  |                   |  F7  |  F8   |  F9   |  F10 |  F11  |  F12  |
+// // |   `   |  !  |  @  |  #   |  $   |  %   |                   |  ^   |  &    |  *    |  (   |   )   |   ~   |
+// // |       |     |     |      |      |      |        |  |       |      |  _    |  +    |  {   |   }   |  "|"  |
+// //                            |      |      |        |  |       |      |       |
+//             bindings = <
+// &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4                &trans    &trans    &trans    &trans    &trans    &trans
+// &kp F1     &kp F2       &kp F3       &kp F4       &kp F5       &kp F6                      &kp F7    &kp F8    &kp F9    &kp F10   &kp F11   &kp F12
+// &kp GRAVE  &kp EXCL     &kp AT       &kp HASH     &kp DOLLAR   &kp PRCNT                   &kp CARET &kp AMPS  &kp ASTRK &kp LPAR  &kp RPAR  &kp TILDE
+// &trans     &trans       &trans       &trans       &trans       &trans    &trans   &trans   &trans    &kp MINUS &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE
+//                                                   &trans       &trans    &trans   &trans   &trans    &trans
+//             >;
+//         };
+
+//         raise_layer {
+//             display-name = "Raise Layer";
+// // ------------------------------------------------------------------------------------------------------------
+// // |       |     |     |      |      |      |                   |      |       |       |      |       |       |
+// // |   `   |  1  |  2  |  3   |  4   |  5   |                   |  6   |   7   |   8   |  9   |   0   |       |
+// // |   F1  |  F2 |  F3 |  F4  |  F5  |  F6  |                   |      |   <-  |   ^   |  v   |  ->   |       |
+// // |   F7  |  F8 |  F9 |  F10 |  F11 |  F12 |        |  |       |  +   |   -   |   =   |  [   |   ]   |   \   |
+// //                            |      |      |        |  |       |      |       |
+//             bindings = <
+// &trans    &trans &trans &trans  &trans  &trans                       &trans      &trans    &trans    &trans   &trans    &trans
+// &kp GRAVE &kp N1 &kp N2 &kp N3  &kp N4  &kp N5                       &kp N6      &kp N7    &kp N8    &kp N9   &kp N0    &trans
+// &kp F1    &kp F2 &kp F3 &kp F4  &kp F5  &kp F6                       &trans      &kp LEFT  &kp DOWN  &kp UP   &kp RIGHT &trans
+// &kp F7    &kp F8 &kp F9 &kp F10 &kp F11 &kp F12   &trans   &trans    &kp KP_PLUS &kp MINUS &kp EQUAL &kp LBKT &kp RBKT  &kp BSLH
+//                                 &trans  &trans    &trans   &trans    &trans      &trans
+//             >;
+//         };
+    };
+};

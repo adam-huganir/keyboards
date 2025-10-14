@@ -20,6 +20,6 @@
 ---
 include:
   - board: nice_nano
-    shield: iris_left
+    shield: five_six_left
   - board: nice_nano
-    shield: iris_right
+    shield: five_six_right

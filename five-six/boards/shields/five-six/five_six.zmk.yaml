@@ -1,0 +1,12 @@
+file_format: "1"
+id: five_six
+name: Five Six
+type: shield
+url: https://github.com/adam-huganir/keyboards
+requires: [pro_micro]
+# exposes: [i2c_oled]
+features:
+  - keys
+siblings:
+  - five_six_left
+  - five_six_right

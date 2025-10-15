@@ -32,7 +32,7 @@
 
     vbatt: vbatt {
         compatible = "zmk,battery-nrf-vddh";
-    }
+    };
 
     default_transform: keymap_transform0 {
         compatible = "zmk,matrix-transform";

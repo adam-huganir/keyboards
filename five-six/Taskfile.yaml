@@ -17,7 +17,6 @@ tasks:
     env:
       CONTAINER_NAME: focused_hopper
     cmd: |-
-      set -x
       for side in left right; do
         docker exec -it $CONTAINER_NAME bash -xec "
           cd /workspaces/zmk/app

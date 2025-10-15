@@ -9,6 +9,10 @@ tasks:
         -o device="$PWD" zmk-config
       devcontainer up --workspace-folder "$(pwd)"  \
         --mount type=volume,source=zmk-config,target=/workspaces/zmk_config
+
+  draw-layout:
+    cmd: |-
+      ./boards/shields/five-six/key_template.py --spacing 1 --comment "//" --width {{.CLI_ARGS}}
   build:
     env:
       CONTAINER_NAME: focused_hopper

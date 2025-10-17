@@ -10,6 +10,18 @@ tasks:
       devcontainer up --workspace-folder "$(pwd)"  \
         --mount type=volume,source=zmk-config,target=/workspaces/zmk_config
 
+  deploy-right:
+    cmd: |-
+      cp five_six_right.uf2 /media/adam/NICENANO
+
+  deploy-left:
+    cmd: |-
+      cp five_six_left.uf2 /media/adam/NICENANO
+
+  deploy-left:
+    cmd: |-
+      cp five_six_left.uf2 /media/adam/NICENANO
+
   draw-layout:
     cmd: |-
       ./boards/shields/five-six/key_template.py --spacing 1 --comment "//" --width {{.CLI_ARGS}}

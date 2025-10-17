@@ -174,7 +174,7 @@
                                label = "nav";
                                bindings = <
 // ┌────────────┬────────────┬────────────┬────────────┬────────────┬────────────┐
-       ______       ______       ______       ______       ______       ______
+    &bt BT_CLR   &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   
 // ├────────────┼────────────┼────────────┼────────────┼────────────┼────────────┤
        ______       ______       ______       ______       ______       ______
 // ├────────────┼────────────┼────────────┼────────────┼────────────┼────────────┤
@@ -235,6 +235,8 @@
 // └────────────┘
                     >;
                 };
+            };
+        };
        
        //         num_layer {
            //             label = "num";
@@ -275,24 +277,7 @@
            //                         >;
        //                 };
        //         };
-              
-        bt_layer {
-            display-name = "BT Layer";
-// ------------------------------------------------------------------------------------------------------------
-// |  ESC  |  1  |  2  |  3   |  4   |  5   |                       |  6   |  7    |  8    |  9   |   0   |   `   |
-// |  TAB  |  Q  |  W  |  E   |  R   |  T   |                       |  Y   |  U    |  I    |  O   |   P   |   -   |
-// |  CTRL |  A  |  S  |  D   |  F   |  G   |                       |  H   |  J    |  K    |  L   |   ;   |   '   |
-// | SHIFT |  Z  |  X  |  C   |  V   |  B   |                       |  N   |  M    |  ,    |  .   |   /   | SHIFT |
-//                        | GUI  | LOWER|  SPACE |  "["  |  "]"  | ENTER | RAISE|  ALT  |
-            bindings = <
-&bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4                      &trans    &trans    &trans    &trans    &trans    &trans
-&trans     &trans       &trans       &trans       &trans       &trans                            &trans    &trans    &trans    &trans    &trans    &trans
-&trans     &trans       &trans       &trans       &trans       &trans                            &trans    &trans    &trans    &trans    &trans    &trans
-&trans     &trans       &trans       &trans       &trans       &trans                            &trans    &trans    &trans    &trans    &trans    &trans
-                                &trans     &trans       &trans       &trans        &trans    &trans    &trans    &trans    &trans
-            >;
-        };
-
+             
 //         lower_layer {
 //             display-name = "Lower Layer";
 // // ------------------------------------------------------------------------------------------------------------
@@ -326,8 +311,6 @@
 //                                 &trans  &trans    &trans   &trans    &trans      &trans
 //             >;
 //         };
-    };
-};
 
 
 /*

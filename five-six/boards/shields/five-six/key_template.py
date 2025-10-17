@@ -2,15 +2,16 @@
 # run with something like:
 # ./boards/shields/five-six/key_template.py --width 8 --spacing 1 --comment "//"
 
+from collections import deque
 from enum import StrEnum
 import argparse
+import re
 
 
 class CoordinateClass(StrEnum):
     JUNC = "+"
     KEY = "-"
     EMPTY = " "
-
 
 CC = CoordinateClass
 
@@ -29,7 +30,7 @@ class TableChars(StrEnum):
     EMPTY = " "
 
 
-def convert_layout_to_character_grid(layout_as_lines):
+def convert_layout_to_character_grid(layout_as_lines, max_keymap_item_length):
     # Convert layout to character grid, handling fractional offsets
     filled_layout = []
     matrix_scale = args.width
@@ -191,6 +192,47 @@ def draw_layout(filled_layout, debug=False):
         final_layout.append(line)
     return final_layout
 
+def reverse_line(l, comment):
+    rev = comment + " "
+    for c in l[::-1]:
+        n = TableChars(c).name
+        if "L" in n:
+            n = n.replace("L", "R")
+        elif "R" in n:
+            n = n.replace("R", "L")
+        rev += TableChars[n]
+    return rev
+
+def draw_keymap(args, mapping, layout_as_lines, fn):
+    kq = deque([z for row in mapping for z in row])
+    final_lines = []
+    for line in layout_as_lines:
+        line = fn(line, args.comment)
+        junc_idxs = []
+        offset = 2
+        for idx, c in enumerate(line):
+            if c in TableChars and c != TableChars.KEY and c != TableChars.EMPTY and c != TableChars.BM and c != TableChars.BL and c != TableChars.BR:
+                junc_idxs.append(idx + offset)
+        for j in range(args.spacing):
+            if j == 0:
+                final_lines.append(line)
+                line = list(" " * len(line))
+                for idx in junc_idxs[:-1]:
+                    if len(kq) == 0:
+                        break
+                    cursor = idx
+                    m = kq.popleft()
+                    m_idx = 0
+                    for _ in range(len(m)):
+                        line[cursor] = m[m_idx]
+                        cursor += 1
+                        m_idx += 1
+                line = "".join(line)
+            else:
+                final_lines.append(line)
+                line = "\n"
+        final_lines.append(line)
+    return "\n".join(final_lines)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -200,7 +242,7 @@ if __name__ == "__main__":
         "--comment",
         "-c",
         type=str,
-        default="",
+        default="//",
         help="Comment to add to the beginning drawn line",
     )
     parser.add_argument(
@@ -217,24 +259,19 @@ if __name__ == "__main__":
         (3.5, 3),
         (6, 1),
     ]
-    filled_layout = convert_layout_to_character_grid(layout_as_lines)
+    mapping = [[
+        ["&kp ESC", "&kp N1", "&kp N2", "&kp N3", "&kp N4", "&kp N5"],
+        ["&kp TAB", "&kp Q", "&kp W", "&kp E", "&kp R", "&kp T"],
+        ["&double_shift", "A_LMETA", "S_LALT", "D_LCTRL", "F_LSHFT", "&kp G"],
+        ["&kp LCTRL", "&kp Z", "&kp X", "&kp C", "&kp V", "&kp B"],
+        ["MEDIA_ESC", "NAV_SPC", "MOUSE_TAB"],
+        ["&kp LBKT"],
+    ]]
+    max_keymap_item_length = max(len(x) for m in mapping for row in m for x in row)
+
+    filled_layout = convert_layout_to_character_grid(layout_as_lines, max_keymap_item_length)
     final_layout = draw_layout(filled_layout, debug=args.debug)
 
-    for line in final_layout:
-        line = args.comment + " " + line
-        for _ in range(args.spacing):
-            line += "\n"
-        print(line)
-
-    for line in final_layout:
-        rev = args.comment + " "
-        for c in line[::-1]:
-            n = TableChars(c).name
-            if "L" in n:
-                n = n.replace("L", "R")
-            elif "R" in n:
-                n = n.replace("R", "L")
-            rev += TableChars[n]
-        for _ in range(args.spacing):
-            rev += "\n"
-        print(rev)
+    for layer in mapping:
+        for fn in (lambda line, comment: comment + " " + line, reverse_line):
+            print(draw_keymap(args, layer, final_layout, fn))

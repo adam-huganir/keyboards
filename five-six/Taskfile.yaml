@@ -1,5 +1,8 @@
 version: "3"
 
+env:
+  CONTAINER_NAME: friendly_neumann
+
 tasks:
   setup-docker:
     cmd: |-
@@ -10,24 +13,31 @@ tasks:
       devcontainer up --workspace-folder "$(pwd)"  \
         --mount type=volume,source=zmk-config,target=/workspaces/zmk_config
 
+  deploy-right-win:
+    vars:
+      nano_path: G:/
+    cmd: powershell -Command "cp five_six_right.uf2 {{.nano_path}}"
+
+  deploy-left-win:
+    vars:
+      nano_path: G:/
+    cmd: powershell -Command "cp five_six_left.uf2 {{.nano_path}}"
+
   deploy-right:
     cmd: |-
-      cp five_six_right.uf2 /media/adam/NICENANO
+      cp five_six_right.uf2 {{.nano_path}}
 
   deploy-left:
     cmd: |-
-      cp five_six_left.uf2 /media/adam/NICENANO
-
-  deploy-left:
-    cmd: |-
-      cp five_six_left.uf2 /media/adam/NICENANO
+      cp five_six_left.uf2 {{.nano_path}}
 
   draw-layout:
     cmd: |-
       ./boards/shields/five-six/key_template.py --spacing 1 --comment "//" --width {{.CLI_ARGS}}
+
   build:
-    env:
-      CONTAINER_NAME: focused_hopper
+    platforms:
+      - linux
     cmd: |-
       for side in left right; do
         docker exec -it $CONTAINER_NAME bash -xec "
@@ -37,4 +47,15 @@ tasks:
           chown $UID:$UID /workspaces/zmk-config/five_six_${side}.uf2
         "
       done
-      
+
+  build-win:
+    platforms:
+      - windows
+    cmd: powershell -Command "foreach ( \$side in @('left', 'right') ) { docker exec -it \$env:CONTAINER_NAME bash -xec \"cd /workspaces/zmk/app; west build -b nice_nano -p -- -DSHIELD=five_six_\$side -DZMK_CONFIG=/workspaces/zmk-config; cp ./build/zephyr/zmk.uf2 /workspaces/zmk-config/five_six_\$side.uf2\" }"
+
+  setup-docker-win:
+    platforms:
+      - windows
+    cmd: |-
+      docker volume create --driver local -o o=bind -o type=none -o device="$PWD" zmk-config
+      devcontainer up --workspace-folder "$PWD" --mount type=volume,source=zmk-config,target=/workspaces/zmk_config

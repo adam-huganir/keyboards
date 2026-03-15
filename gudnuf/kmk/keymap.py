@@ -77,7 +77,7 @@ def configure(keyboard):
     TD_DF9 = KC.TD(XX, DF(9), **tt)
     TD_RELOAD = KC.TD(XX, RELOAD, **tt)
 
-    fmt: off
+    #fmt: off
     keyboard.keymap = [
         [
             Q,
@@ -105,8 +105,8 @@ def configure(keyboard):
             C,
             D,
             V,
-            XX,
-            XX,
+            LT_5TAB,
+            LT_8ENT,
             K,
             H,
             COMM,
@@ -147,8 +147,8 @@ def configure(keyboard):
             C,
             V,
             B,
-            XX,
-            XX,
+            LT_5TAB,
+            LT_8ENT,
             N,
             M,
             COMM,
@@ -189,8 +189,8 @@ def configure(keyboard):
             C,
             D,
             V,
-            XX,
-            XX,
+            LT_5TAB,
+            LT_8ENT,
             K,
             H,
             COMM,
@@ -504,7 +504,7 @@ def configure(keyboard):
             XX,
         ],
     ]
-
+    #fmt: on
     layer_names_list = [
         "Base",
         "Extra",

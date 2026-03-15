@@ -1,5 +1,0 @@
-config SHIELD_CORNIA_LEFT
-    def_bool $(shields_list_contains,cornia_left)
-
-config SHIELD_CORNIA_RIGHT
-    def_bool $(shields_list_contains,cornia_right)

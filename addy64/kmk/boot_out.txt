@@ -1,3 +1,0 @@
-Adafruit CircuitPython 8.2.7 on 2023-10-19; nice!nano with nRF52840
-Board ID:nice_nano
-UID:672215F29C0201AC

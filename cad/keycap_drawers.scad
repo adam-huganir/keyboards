@@ -1,7 +1,7 @@
 /* [Print Layout] */
 
 // Preview the parts in the optimal orientation for 3D printing.
-print_orientation = false; // [true, false]
+print_orientation = true; // [true, false]
 // Additional spacing between key trays in print orientation to prevent brim collision.
 print_tray_spacing_mm = 5; // [0:1:50]
 
@@ -13,17 +13,17 @@ bed_y_mm = printer == "p1s" ? 250 : 220;
 /* [Key Profile] */
 
 // Select the key spacing standard used to size each tray footprint.
-key_profile = "choc"; // [mx, choc]
+key_profile = "mx"; // [mx, choc]
 
 /* [3D Printing] */
 
 // 3D printing settings and validation.
-spiral_vase = true; // [true, false]
+spiral_vase = false; // [true, false]
 nozzle_width_mm = 0.4; // [0.2:0.05:1.0]
 
 // Shared wall and floor dimensions.
-wall_lines = 1; // [1:1:5]
-floor_layers = 1; // [1:1:5]
+wall_lines = 2; // [1:1:5]
+floor_layers = 2; // [1:1:5]
 
 // Effective print dimensions. Spiral vase mode forces single-line walls and floor.
 effective_wall_thickness_mm = spiral_vase ? nozzle_width_mm : wall_lines * nozzle_width_mm;
@@ -47,7 +47,7 @@ assert(
 // General fit clearance applied to most nested parts.
 default_clearance_mm = 0.4; // [0:0.05:1.0]
 // Fit clearance around the tray container inside the drawer.
-drawer_clearance_mm = 0.3; // [0:0.05:1.0]
+drawer_clearance_mm = 0.4; // [0:0.05:1.0]
 // Fit clearance around individual trays inside the container.
 tray_container_clearance_mm = 0.3; // [0:0.05:1.0]
 
@@ -58,8 +58,17 @@ tray_orientation = "width"; // [width, length]
 tray_count = [3, 2]; // [1:1:12]
 
 // Tray-specific sizing controls.
-max_keycap_height_mm = 17; // [8:0.5:30]
-tray_lip_height_mm = 5; // [1:0.5:20]
+keycap_height_preset = "OEM"; // [Custom, SA, OEM, Cherry, XDA, DSA, G20]
+custom_max_keycap_height_mm = 17; // [6:0.1:20]
+max_keycap_height_mm =
+  keycap_height_preset == "SA" ? 16.5
+  : keycap_height_preset == "OEM" ? 11.9
+  : keycap_height_preset == "Cherry" ? 9.4
+  : keycap_height_preset == "XDA" ? 9.1
+  : keycap_height_preset == "DSA" ? 7.6
+  : keycap_height_preset == "G20" ? 7.6
+  : custom_max_keycap_height_mm;
+tray_lip_height_mm = 4; // [1:0.5:20]
 tray_length_u = 1; // [1:1:8]
 
 /* [Tray Container Handle] */
@@ -97,7 +106,7 @@ key_spacing_y_mm = key_profile == "mx" ? mx_key_spacing_mm : choc_key_spacing_y_
 
 // A tray is fixed to 1u in y, while row width in x and lip height in z remain parametric.
 row_tray_width_u = tray_orientation == "width" ? tray_count[0] : tray_length_u;
-row_tray_length_u = tray_orientation == "width" ? tray_length_u : tray_count[0];
+row_tray_length_u = tray_orientation == "width" ? tray_length_u : tray_count[1];
 tray_height_mm = tray_lip_height_mm;
 stack_height_mm = max_keycap_height_mm + default_clearance_mm * 2;
 
@@ -543,35 +552,45 @@ module drawer_assembly() {
 }
 
 module print_drawer_assembly() {
+  num_trays = tray_orientation == "width" ? tray_count[1] : tray_count[0];
+
+  // 1. Drawer goes first, bottom-left
+  // It is rotated so it stands on its back.
+  drawer_print_x = drawer_outer_x_mm;
+  drawer_print_y = drawer_outer_z_mm; // Z becomes Y after rotation
+
   translate([0, 0, drawer_outer_y_mm])
     rotate([-90, 0, 0])
       outer_drawer();
 
-  translate(
-    [
-      drawer_outer_x_mm + debug_explode_distance_mm,
-      0,
-      0,
-    ]
-  )
+  // 2. Container
+  // If it fits next to the drawer, put it there, otherwise stack above
+  container_fits_x = (drawer_print_x + print_tray_spacing_mm + tray_container_outer_x_mm) <= bed_x_mm;
+  container_x = container_fits_x ? drawer_print_x + print_tray_spacing_mm : 0;
+  container_y = container_fits_x ? 0 : drawer_print_y + print_tray_spacing_mm;
+
+  translate([container_x, container_y, 0])
     tray_container();
 
-  translate(
-    [
-      drawer_outer_x_mm + tray_container_outer_x_mm + debug_explode_distance_mm * 2,
-      0,
-      0,
-    ]
-  ) if (tray_orientation == "width") {
-    for (iy = [0:tray_count[1] - 1]) {
-      translate([0, iy * (tray_outer_y_mm + print_tray_spacing_mm), 0])
-        key_tray();
-    }
-  } else {
-    for (ix = [0:tray_count[0] - 1]) {
-      translate([ix * (tray_outer_x_mm + print_tray_spacing_mm), 0, 0])
-        key_tray();
-    }
+  // 3. Trays (arranged in a grid)
+  trays_start_y = max(
+    drawer_print_y,
+    container_y + tray_container_outer_y_mm
+  ) + print_tray_spacing_mm;
+
+  trays_per_row = max(1, floor((bed_x_mm + print_tray_spacing_mm) / (tray_outer_x_mm + print_tray_spacing_mm)));
+
+  for (i = [0:num_trays - 1]) {
+    col = i % trays_per_row;
+    row = floor(i / trays_per_row);
+    translate(
+      [
+        col * (tray_outer_x_mm + print_tray_spacing_mm),
+        trays_start_y + row * (tray_outer_y_mm + print_tray_spacing_mm),
+        0,
+      ]
+    )
+      key_tray();
   }
 }
 

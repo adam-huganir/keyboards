@@ -1,0 +1,4 @@
+name: five-six
+build:
+  settings:
+    board_root: .

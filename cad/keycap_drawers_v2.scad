@@ -60,7 +60,7 @@ max_keycap_height_mm =
   : keycap_height_preset == "G20" ? 7.6
   : custom_max_keycap_height_mm;
 tray_lip_height_mm = 4; // [1:0.5:20]
-tray_length_u = 1; // [1:1:8]
+pull_triangle_top_from_bottom_mm = 9.1; // [0:0.5:40]
 
 /* [Advanced Geometry] */
 
@@ -73,8 +73,16 @@ vertical_corner_radius_mm = 0.4; // [0:0.05:1.0]
 mx_key_spacing_mm = 19.05; // [18:0.05:20]
 choc_key_spacing_x_mm = 18; // [16:0.05:20]
 choc_key_spacing_y_mm = 17; // [16:0.05:20]
+tray_length_u = 1; // [1:1:8]
 
 /* [Hidden] */
+
+pull_triangle_height_mm = (max_keycap_height_mm + pull_triangle_top_from_bottom_mm )/3; // [1:0.5:20]
+pull_triangle_width_mm = 7; // [8:0.5:80]
+pull_triangle_depth_mm = 8; // [1:0.5:20]
+pull_side_sphere_radius_mm = 5; // [0.5:0.1:20]
+pull_side_sphere_wall_offset_mm = 3.6; // [0:0.1:10]
+pull_side_sphere_surface_from_handle_center_mm = 0.2; // [0:0.1:2]
 
 // Spread the drawer, container, and trays apart for inspection.
 debug_exploded_view = false; // [true, false]
@@ -148,6 +156,86 @@ module rounded_rect_prism(size, radius) {
         );
 }
 
+module tray_container_front_pull_triangle() {
+  pull_width_mm = min(
+    pull_triangle_width_mm,
+    tray_container_outer_x_mm - effective_wall_thickness_mm * 2
+  );
+  pull_height_mm = min(pull_triangle_height_mm, tray_container_outer_z_mm - effective_floor_thickness_mm);
+  pull_depth_mm = min(pull_triangle_depth_mm, tray_container_outer_y_mm);
+  pull_x_mm = (tray_container_outer_x_mm - pull_width_mm) / 2;
+  pull_top_z_mm = min(
+    tray_container_outer_z_mm - 0.01,
+    max(effective_floor_thickness_mm + 0.01, pull_triangle_top_from_bottom_mm)
+  );
+  pull_bottom_z_mm = max(effective_floor_thickness_mm, pull_top_z_mm - pull_height_mm);
+  pull_center_x_mm = pull_x_mm + pull_width_mm / 2;
+  pull_center_z_mm = pull_top_z_mm;
+  pull_mid_z_mm = (pull_top_z_mm + pull_bottom_z_mm) / 2;
+  pull_sphere_radius_mm = pull_side_sphere_radius_mm;
+  pull_sphere_center_x_mm =
+    pull_center_x_mm + pull_side_sphere_surface_from_handle_center_mm + pull_sphere_radius_mm;
+  pull_sphere_center_x_mirror_mm =
+    pull_center_x_mm - pull_side_sphere_surface_from_handle_center_mm - pull_sphere_radius_mm;
+  pull_sphere_center_y_mm = -pull_side_sphere_wall_offset_mm / 2;
+  pull_sphere_center_z_mm = pull_mid_z_mm;
+  pull_flat_face_from_drawer_mm = min(
+    pull_depth_mm,
+    max(0, pull_side_sphere_wall_offset_mm)
+  );
+  debug_epsilon_mm = 0.01;
+  pull_base_y_mm = debug_epsilon_mm;
+
+  if (pull_width_mm > 0 && pull_height_mm > 0 && pull_depth_mm > 0)
+    if (pull_sphere_radius_mm > 0)
+      render(convexity=10)
+        difference() {
+          polyhedron(
+            points = [
+              [pull_x_mm, pull_base_y_mm, pull_top_z_mm],
+              [pull_x_mm + pull_width_mm, pull_base_y_mm, pull_top_z_mm],
+              [pull_center_x_mm, pull_base_y_mm, pull_bottom_z_mm],
+              [pull_center_x_mm, -pull_depth_mm, pull_center_z_mm],
+            ],
+            faces = [
+              [0, 1, 2],
+              [0, 3, 1],
+              [1, 3, 2],
+              [2, 3, 0],
+            ],
+            convexity = 10
+          );
+          translate([pull_sphere_center_x_mm, pull_sphere_center_y_mm, pull_sphere_center_z_mm])
+            sphere(r=pull_sphere_radius_mm);
+          translate([pull_sphere_center_x_mirror_mm, pull_sphere_center_y_mm, pull_sphere_center_z_mm])
+            sphere(r=pull_sphere_radius_mm);
+          if (pull_flat_face_from_drawer_mm < pull_depth_mm)
+            translate([pull_x_mm - debug_epsilon_mm, -pull_depth_mm - debug_epsilon_mm, pull_bottom_z_mm - debug_epsilon_mm])
+              cube([
+                pull_width_mm + debug_epsilon_mm * 2,
+                pull_depth_mm - pull_flat_face_from_drawer_mm + debug_epsilon_mm,
+                pull_top_z_mm - pull_bottom_z_mm + debug_epsilon_mm * 2,
+              ]);
+        }
+    else
+      render(convexity=10)
+        polyhedron(
+          points = [
+            [pull_x_mm, pull_base_y_mm, pull_top_z_mm],
+            [pull_x_mm + pull_width_mm, pull_base_y_mm, pull_top_z_mm],
+            [pull_center_x_mm, pull_base_y_mm, pull_bottom_z_mm],
+            [pull_center_x_mm, -pull_depth_mm, pull_center_z_mm],
+          ],
+          faces = [
+            [0, 1, 2],
+            [0, 3, 1],
+            [1, 3, 2],
+            [2, 3, 0],
+          ],
+          convexity = 10
+        );
+}
+
 // Build a single open-top tray.
 module key_tray() {
   difference() {
@@ -165,16 +253,19 @@ module key_tray() {
 
 // Build the open-top container shell that holds one or more trays.
 module tray_container() {
-  difference() {
-    rounded_rect_prism(
-      [tray_container_outer_x_mm, tray_container_outer_y_mm, tray_container_outer_z_mm],
-      tray_container_outer_corner_radius_mm
-    );
-    translate([effective_wall_thickness_mm, effective_wall_thickness_mm, effective_floor_thickness_mm])
+  union() {
+    difference() {
       rounded_rect_prism(
-        [tray_container_inner_x_mm, tray_container_inner_y_mm, tray_container_inner_z_mm],
-        tray_container_inner_corner_radius_mm
+        [tray_container_outer_x_mm, tray_container_outer_y_mm, tray_container_outer_z_mm],
+        tray_container_outer_corner_radius_mm
       );
+      translate([effective_wall_thickness_mm, effective_wall_thickness_mm, effective_floor_thickness_mm])
+        rounded_rect_prism(
+          [tray_container_inner_x_mm, tray_container_inner_y_mm, tray_container_inner_z_mm],
+          tray_container_inner_corner_radius_mm
+        );
+    }
+    tray_container_front_pull_triangle();
   }
 }
 

@@ -1,3 +1,4 @@
+include <BOSL2/std.scad>
 /* [Print Layout] */
 
 // Preview the parts in the optimal orientation for 3D printing.
@@ -60,7 +61,14 @@ max_keycap_height_mm =
   : keycap_height_preset == "G20" ? 7.6
   : custom_max_keycap_height_mm;
 tray_lip_height_mm = 4; // [1:0.5:20]
-pull_triangle_top_from_bottom_mm = 9.1; // [0:0.5:40]
+
+/* [Tray Container Handle] */
+
+// Dimensions and angle of the sloped handle on the tray container front face.
+handle_height_mm = 10; // [0:0.5:20]
+handle_width_mm = 3; // [0:0.5:20]
+// Angle of the handle slope relative to horizontal.
+handle_angle_deg = 60; // [30:5:80]
 
 /* [Advanced Geometry] */
 
@@ -76,13 +84,6 @@ choc_key_spacing_y_mm = 17; // [16:0.05:20]
 tray_length_u = 1; // [1:1:8]
 
 /* [Hidden] */
-
-pull_triangle_height_mm = (max_keycap_height_mm + pull_triangle_top_from_bottom_mm )/3; // [1:0.5:20]
-pull_triangle_width_mm = 7; // [8:0.5:80]
-pull_triangle_depth_mm = 8; // [1:0.5:20]
-pull_side_sphere_radius_mm = 5; // [0.5:0.1:20]
-pull_side_sphere_wall_offset_mm = 3.6; // [0:0.1:10]
-pull_side_sphere_surface_from_handle_center_mm = 0.2; // [0:0.1:2]
 
 // Spread the drawer, container, and trays apart for inspection.
 debug_exploded_view = false; // [true, false]
@@ -143,110 +144,60 @@ drawer_outer_z_mm = drawer_inner_z_mm + effective_floor_thickness_mm + effective
 drawer_outer_corner_radius_mm = min(vertical_corner_radius_mm, min(drawer_outer_x_mm, drawer_outer_y_mm) / 2);
 drawer_inner_corner_radius_mm = max(0, drawer_outer_corner_radius_mm - effective_wall_thickness_mm);
 
-// Build a rounded rectangular prism with tiny fillets on the vertical corners.
-module rounded_rect_prism(size, radius) {
-  linear_extrude(height=size[2])
-    offset(r=radius)
-      translate([radius, radius])
-        square(
-          [
-            max(0.01, size[0] - radius * 2),
-            max(0.01, size[1] - radius * 2),
-          ]
-        );
-}
+// Sloped handle on the tray container front face, built as a triangular prism.
+// The wedge projects forward (-Y) from the container face so you can grip it to
+// pull the container out of the drawer.
+//
+// Cross-section (Y-Z plane, looking from +X):
+//
+//   top_z   Back_Top ---- Front_Top
+//              |          /
+//              |         /  slope at handle_angle_deg
+//              |        /
+//   bot_z   Back_Bot --+
+//              Y=0     Y=-run
+//
+module tray_container_handle_body() {
+  x_left = (tray_container_outer_x_mm - handle_width_mm) / 2;
+  x_right = (tray_container_outer_x_mm + handle_width_mm) / 2;
+  bot_z = effective_floor_thickness_mm;
+  rise = min(handle_height_mm, tray_container_outer_z_mm - effective_floor_thickness_mm);
+  run = rise / tan(handle_angle_deg);
+  top_z = bot_z + rise;
 
-module tray_container_front_pull_triangle() {
-  pull_width_mm = min(
-    pull_triangle_width_mm,
-    tray_container_outer_x_mm - effective_wall_thickness_mm * 2
+  polyhedron(
+    points=[
+      [x_left, 0, bot_z], // 0: bottom-back-left
+      [x_left, -run, top_z], // 1: top-front-left
+      [x_left, 0, top_z], // 2: top-back-left
+      [x_right, 0, bot_z], // 3: bottom-back-right
+      [x_right, -run, top_z], // 4: top-front-right
+      [x_right, 0, top_z], // 5: top-back-right
+    ],
+    faces=[
+      [0, 1, 2], // left
+      [3, 5, 4], // right
+      [0, 3, 4, 1], // slope
+      [1, 4, 5, 2], // top
+      [0, 2, 5, 3], // back (against container)
+    ],
+    convexity=2
   );
-  pull_height_mm = min(pull_triangle_height_mm, tray_container_outer_z_mm - effective_floor_thickness_mm);
-  pull_depth_mm = min(pull_triangle_depth_mm, tray_container_outer_y_mm);
-  pull_x_mm = (tray_container_outer_x_mm - pull_width_mm) / 2;
-  pull_top_z_mm = min(
-    tray_container_outer_z_mm - 0.01,
-    max(effective_floor_thickness_mm + 0.01, pull_triangle_top_from_bottom_mm)
-  );
-  pull_bottom_z_mm = max(effective_floor_thickness_mm, pull_top_z_mm - pull_height_mm);
-  pull_center_x_mm = pull_x_mm + pull_width_mm / 2;
-  pull_center_z_mm = pull_top_z_mm;
-  pull_mid_z_mm = (pull_top_z_mm + pull_bottom_z_mm) / 2;
-  pull_sphere_radius_mm = pull_side_sphere_radius_mm;
-  pull_sphere_center_x_mm =
-    pull_center_x_mm + pull_side_sphere_surface_from_handle_center_mm + pull_sphere_radius_mm;
-  pull_sphere_center_x_mirror_mm =
-    pull_center_x_mm - pull_side_sphere_surface_from_handle_center_mm - pull_sphere_radius_mm;
-  pull_sphere_center_y_mm = -pull_side_sphere_wall_offset_mm / 2;
-  pull_sphere_center_z_mm = pull_mid_z_mm;
-  pull_flat_face_from_drawer_mm = min(
-    pull_depth_mm,
-    max(0, pull_side_sphere_wall_offset_mm)
-  );
-  debug_epsilon_mm = 0.01;
-  pull_base_y_mm = debug_epsilon_mm;
-
-  if (pull_width_mm > 0 && pull_height_mm > 0 && pull_depth_mm > 0)
-    if (pull_sphere_radius_mm > 0)
-      render(convexity=10)
-        difference() {
-          polyhedron(
-            points = [
-              [pull_x_mm, pull_base_y_mm, pull_top_z_mm],
-              [pull_x_mm + pull_width_mm, pull_base_y_mm, pull_top_z_mm],
-              [pull_center_x_mm, pull_base_y_mm, pull_bottom_z_mm],
-              [pull_center_x_mm, -pull_depth_mm, pull_center_z_mm],
-            ],
-            faces = [
-              [0, 1, 2],
-              [0, 3, 1],
-              [1, 3, 2],
-              [2, 3, 0],
-            ],
-            convexity = 10
-          );
-          translate([pull_sphere_center_x_mm, pull_sphere_center_y_mm, pull_sphere_center_z_mm])
-            sphere(r=pull_sphere_radius_mm);
-          translate([pull_sphere_center_x_mirror_mm, pull_sphere_center_y_mm, pull_sphere_center_z_mm])
-            sphere(r=pull_sphere_radius_mm);
-          if (pull_flat_face_from_drawer_mm < pull_depth_mm)
-            translate([pull_x_mm - debug_epsilon_mm, -pull_depth_mm - debug_epsilon_mm, pull_bottom_z_mm - debug_epsilon_mm])
-              cube([
-                pull_width_mm + debug_epsilon_mm * 2,
-                pull_depth_mm - pull_flat_face_from_drawer_mm + debug_epsilon_mm,
-                pull_top_z_mm - pull_bottom_z_mm + debug_epsilon_mm * 2,
-              ]);
-        }
-    else
-      render(convexity=10)
-        polyhedron(
-          points = [
-            [pull_x_mm, pull_base_y_mm, pull_top_z_mm],
-            [pull_x_mm + pull_width_mm, pull_base_y_mm, pull_top_z_mm],
-            [pull_center_x_mm, pull_base_y_mm, pull_bottom_z_mm],
-            [pull_center_x_mm, -pull_depth_mm, pull_center_z_mm],
-          ],
-          faces = [
-            [0, 1, 2],
-            [0, 3, 1],
-            [1, 3, 2],
-            [2, 3, 0],
-          ],
-          convexity = 10
-        );
 }
 
 // Build a single open-top tray.
 module key_tray() {
   difference() {
-    rounded_rect_prism(
+    cuboid(
       [tray_outer_x_mm, tray_outer_y_mm, tray_outer_z_mm],
-      tray_outer_corner_radius_mm
+      rounding=tray_outer_corner_radius_mm, except=[TOP, BOT],
+      anchor=FRONT + LEFT + BOT
     );
     translate([effective_wall_thickness_mm, effective_wall_thickness_mm, effective_floor_thickness_mm])
-      rounded_rect_prism(
+      cuboid(
         [tray_inner_x_mm, tray_inner_y_mm, tray_inner_z_mm],
-        tray_inner_corner_radius_mm
+        rounding=tray_inner_corner_radius_mm, except=[TOP, BOT],
+        anchor=FRONT + LEFT + BOT
       );
   }
 }
@@ -255,31 +206,35 @@ module key_tray() {
 module tray_container() {
   union() {
     difference() {
-      rounded_rect_prism(
+      cuboid(
         [tray_container_outer_x_mm, tray_container_outer_y_mm, tray_container_outer_z_mm],
-        tray_container_outer_corner_radius_mm
+        rounding=tray_container_outer_corner_radius_mm, except=[TOP, BOT],
+        anchor=FRONT + LEFT + BOT
       );
       translate([effective_wall_thickness_mm, effective_wall_thickness_mm, effective_floor_thickness_mm])
-        rounded_rect_prism(
+        cuboid(
           [tray_container_inner_x_mm, tray_container_inner_y_mm, tray_container_inner_z_mm],
-          tray_container_inner_corner_radius_mm
+          rounding=tray_container_inner_corner_radius_mm, except=[TOP, BOT],
+          anchor=FRONT + LEFT + BOT
         );
     }
-    tray_container_front_pull_triangle();
+    tray_container_handle_body();
   }
 }
 
 // Build the outer drawer shell with a front opening for the tray container.
 module outer_drawer() {
   difference() {
-    rounded_rect_prism(
+    cuboid(
       [drawer_outer_x_mm, drawer_outer_y_mm, drawer_outer_z_mm],
-      drawer_outer_corner_radius_mm
+      rounding=drawer_outer_corner_radius_mm, except=[TOP, BOT],
+      anchor=FRONT + LEFT + BOT
     );
     translate([effective_wall_thickness_mm, 0, effective_floor_thickness_mm])
-      rounded_rect_prism(
+      cuboid(
         [drawer_inner_x_mm, drawer_inner_y_mm, drawer_inner_z_mm],
-        drawer_inner_corner_radius_mm
+        rounding=drawer_inner_corner_radius_mm, except=[TOP, BOT],
+        anchor=FRONT + LEFT + BOT
       );
   }
 }
